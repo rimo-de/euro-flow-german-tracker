@@ -1,111 +1,15 @@
-
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Transaction, CategoryType } from "@/types/finance";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
-
-// Define types that match Supabase schema for easier data handling
-type SupabaseTransaction = {
-  id: string;
-  date: string;
-  type: "expense" | "revenue";
-  category_id: string;
-  description: string;
-  amount: number;
-  vat: number;
-  total_amount: number;
-  notes?: string | null;
-  invoice_path?: string | null;
-  recurring?: boolean | null;
-  recurring_frequency?: string | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-  category?: SupabaseCategory;
-};
-
-type SupabaseCategory = {
-  id: string;
-  name: string;
-  type: "expense" | "revenue" | null;
-  color?: string | null;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-};
-
-// Helper functions to convert between Supabase and app models
-const mapSupabaseTransactionToTransaction = (st: SupabaseTransaction): Transaction => {
-  return {
-    id: st.id,
-    date: new Date(st.date),
-    type: st.type,
-    categoryId: st.category_id,
-    description: st.description,
-    amount: st.amount,
-    vat: st.vat,
-    totalAmount: st.total_amount,
-    notes: st.notes || undefined,
-    invoicePath: st.invoice_path || undefined,
-    recurring: st.recurring || false,
-    recurringFrequency: st.recurring_frequency as "daily" | "weekly" | "monthly" | "yearly" | undefined,
-    createdAt: new Date(st.created_at),
-    updatedAt: new Date(st.updated_at)
-  };
-};
-
-const mapSupabaseCategoryToCategory = (sc: SupabaseCategory): CategoryType => {
-  return {
-    id: sc.id,
-    name: sc.name,
-    type: sc.type === "expense" || sc.type === "revenue" ? sc.type : "both",
-    color: sc.color || undefined
-  };
-};
-
-const mapTransactionToSupabase = (t: Omit<Transaction, "id" | "createdAt" | "updatedAt">, userId: string): Omit<SupabaseTransaction, "id" | "created_at" | "updated_at"> => {
-  return {
-    date: t.date.toISOString(),
-    type: t.type,
-    category_id: t.categoryId,
-    description: t.description,
-    amount: t.amount,
-    vat: t.vat,
-    total_amount: t.totalAmount,
-    notes: t.notes || null,
-    invoice_path: t.invoicePath || null,
-    recurring: t.recurring || false,
-    recurring_frequency: t.recurringFrequency || null,
-    user_id: userId
-  };
-};
-
-const mapCategoryToSupabase = (c: Omit<CategoryType, "id">, userId: string): Omit<SupabaseCategory, "id" | "created_at" | "updated_at"> => {
-  // Handle "both" by setting to null - our RLS policy will allow this
-  const dbType = c.type === "both" ? null : c.type;
-  
-  return {
-    name: c.name,
-    type: dbType,
-    color: c.color || null,
-    user_id: userId
-  };
-};
-
-type FinanceContextType = {
-  transactions: Transaction[];
-  categories: CategoryType[];
-  addTransaction: (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => Promise<void>;
-  updateTransaction: (id: string, transaction: Partial<Transaction>) => Promise<void>;
-  deleteTransaction: (id: string) => Promise<void>;
-  addCategory: (category: Omit<CategoryType, "id">) => Promise<void>;
-  updateCategory: (id: string, category: Partial<CategoryType>) => Promise<void>;
-  deleteCategory: (id: string) => Promise<void>;
-  loading: boolean;
-};
-
-const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
+import { 
+  mapSupabaseTransactionToTransaction,
+  mapSupabaseCategoryToCategory,
+  mapTransactionToSupabase,
+  mapCategoryToSupabase 
+} from "@/utils/supabaseMappers";
+import { FinanceContext, FinanceContextType } from "@/hooks/useFinanceContext";
 
 export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -127,7 +31,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       setLoading(true);
       
-      // Fetch categories
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
         .select('*')
@@ -138,7 +41,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const mappedCategories = categoriesData.map(mapSupabaseCategoryToCategory);
       setCategories(mappedCategories);
 
-      // Fetch transactions
       const { data: transactionsData, error: transactionsError } = await supabase
         .from('transactions')
         .select(`
@@ -200,7 +102,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       if (!user) throw new Error("User not authenticated");
       
-      // Convert partial Transaction to partial SupabaseTransaction
       const updates: Record<string, any> = {};
       
       if (transaction.date !== undefined) updates.date = transaction.date.toISOString();
@@ -306,13 +207,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       if (!user) throw new Error("User not authenticated");
       
-      // Convert partial CategoryType to partial SupabaseCategory
       const updates: Record<string, any> = {};
       
       if (category.name !== undefined) updates.name = category.name;
       if (category.color !== undefined) updates.color = category.color;
       if (category.type !== undefined) {
-        // Handle "both" by setting to null in the database
         updates.type = category.type === "both" ? null : category.type;
       }
 
@@ -390,10 +289,4 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 };
 
-export const useFinance = () => {
-  const context = useContext(FinanceContext);
-  if (context === undefined) {
-    throw new Error("useFinance must be used within a FinanceProvider");
-  }
-  return context;
-};
+export { useFinance } from "@/hooks/useFinanceContext";
