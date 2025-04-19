@@ -5,6 +5,94 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
+// Define types that match Supabase schema for easier data handling
+type SupabaseTransaction = {
+  id: string;
+  date: string;
+  type: "expense" | "revenue";
+  category_id: string;
+  description: string;
+  amount: number;
+  vat: number;
+  total_amount: number;
+  notes?: string | null;
+  invoice_path?: string | null;
+  recurring?: boolean | null;
+  recurring_frequency?: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  category?: SupabaseCategory;
+};
+
+type SupabaseCategory = {
+  id: string;
+  name: string;
+  type: "expense" | "revenue" | null;
+  color?: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+};
+
+// Helper functions to convert between Supabase and app models
+const mapSupabaseTransactionToTransaction = (st: SupabaseTransaction): Transaction => {
+  return {
+    id: st.id,
+    date: new Date(st.date),
+    type: st.type,
+    categoryId: st.category_id,
+    description: st.description,
+    amount: st.amount,
+    vat: st.vat,
+    totalAmount: st.total_amount,
+    notes: st.notes || undefined,
+    invoicePath: st.invoice_path || undefined,
+    recurring: st.recurring || false,
+    recurringFrequency: st.recurring_frequency as "daily" | "weekly" | "monthly" | "yearly" | undefined,
+    createdAt: new Date(st.created_at),
+    updatedAt: new Date(st.updated_at)
+  };
+};
+
+const mapSupabaseCategoryToCategory = (sc: SupabaseCategory): CategoryType => {
+  return {
+    id: sc.id,
+    name: sc.name,
+    type: sc.type === "expense" || sc.type === "revenue" ? sc.type : "both",
+    color: sc.color || undefined
+  };
+};
+
+const mapTransactionToSupabase = (t: Omit<Transaction, "id" | "createdAt" | "updatedAt">, userId: string): Omit<SupabaseTransaction, "id" | "created_at" | "updated_at"> => {
+  return {
+    date: t.date.toISOString(),
+    type: t.type,
+    category_id: t.categoryId,
+    description: t.description,
+    amount: t.amount,
+    vat: t.vat,
+    total_amount: t.totalAmount,
+    notes: t.notes || null,
+    invoice_path: t.invoicePath || null,
+    recurring: t.recurring || false,
+    recurring_frequency: t.recurringFrequency || null,
+    user_id: userId
+  };
+};
+
+const mapCategoryToSupabase = (c: Omit<CategoryType, "id">, userId: string): Omit<SupabaseCategory, "id" | "created_at" | "updated_at"> => {
+  // Handle "both" by setting to null - our RLS policy will allow this
+  const dbType = c.type === "both" ? null : c.type;
+  
+  return {
+    name: c.name,
+    type: dbType,
+    color: c.color || null,
+    user_id: userId
+  };
+};
+
 type FinanceContextType = {
   transactions: Transaction[];
   categories: CategoryType[];
@@ -46,7 +134,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         .order('created_at', { ascending: false });
 
       if (categoriesError) throw categoriesError;
-      setCategories(categoriesData);
+      
+      const mappedCategories = categoriesData.map(mapSupabaseCategoryToCategory);
+      setCategories(mappedCategories);
 
       // Fetch transactions
       const { data: transactionsData, error: transactionsError } = await supabase
@@ -58,7 +148,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         .order('date', { ascending: false });
 
       if (transactionsError) throw transactionsError;
-      setTransactions(transactionsData);
+      
+      const mappedTransactions = transactionsData.map(mapSupabaseTransactionToTransaction);
+      setTransactions(mappedTransactions);
 
     } catch (error: any) {
       console.error('Error loading finance data:', error.message);
@@ -74,18 +166,20 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addTransaction = async (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
     try {
+      if (!user) throw new Error("User not authenticated");
+      
+      const supabaseTransaction = mapTransactionToSupabase(transaction, user.id);
+      
       const { data, error } = await supabase
         .from('transactions')
-        .insert({
-          ...transaction,
-          user_id: user?.id,
-        })
+        .insert(supabaseTransaction)
         .select()
         .single();
 
       if (error) throw error;
 
-      setTransactions(prev => [data, ...prev]);
+      const newTransaction = mapSupabaseTransactionToTransaction(data);
+      setTransactions(prev => [newTransaction, ...prev]);
       
       toast({
         title: "Transaction added",
@@ -104,17 +198,35 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateTransaction = async (id: string, transaction: Partial<Transaction>) => {
     try {
+      if (!user) throw new Error("User not authenticated");
+      
+      // Convert partial Transaction to partial SupabaseTransaction
+      const updates: Record<string, any> = {};
+      
+      if (transaction.date !== undefined) updates.date = transaction.date.toISOString();
+      if (transaction.type !== undefined) updates.type = transaction.type;
+      if (transaction.categoryId !== undefined) updates.category_id = transaction.categoryId;
+      if (transaction.description !== undefined) updates.description = transaction.description;
+      if (transaction.amount !== undefined) updates.amount = transaction.amount;
+      if (transaction.vat !== undefined) updates.vat = transaction.vat;
+      if (transaction.totalAmount !== undefined) updates.total_amount = transaction.totalAmount;
+      if (transaction.notes !== undefined) updates.notes = transaction.notes;
+      if (transaction.invoicePath !== undefined) updates.invoice_path = transaction.invoicePath;
+      if (transaction.recurring !== undefined) updates.recurring = transaction.recurring;
+      if (transaction.recurringFrequency !== undefined) updates.recurring_frequency = transaction.recurringFrequency;
+
       const { data, error } = await supabase
         .from('transactions')
-        .update(transaction)
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
 
+      const updatedTransaction = mapSupabaseTransactionToTransaction(data);
       setTransactions(prev => 
-        prev.map(t => t.id === id ? { ...t, ...data } : t)
+        prev.map(t => t.id === id ? updatedTransaction : t)
       );
 
       toast({
@@ -160,18 +272,20 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addCategory = async (category: Omit<CategoryType, "id">) => {
     try {
+      if (!user) throw new Error("User not authenticated");
+      
+      const supabaseCategory = mapCategoryToSupabase(category, user.id);
+      
       const { data, error } = await supabase
         .from('categories')
-        .insert({
-          ...category,
-          user_id: user?.id,
-        })
+        .insert(supabaseCategory)
         .select()
         .single();
 
       if (error) throw error;
 
-      setCategories(prev => [...prev, data]);
+      const newCategory = mapSupabaseCategoryToCategory(data);
+      setCategories(prev => [...prev, newCategory]);
       
       toast({
         title: "Category added",
@@ -190,17 +304,30 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateCategory = async (id: string, category: Partial<CategoryType>) => {
     try {
+      if (!user) throw new Error("User not authenticated");
+      
+      // Convert partial CategoryType to partial SupabaseCategory
+      const updates: Record<string, any> = {};
+      
+      if (category.name !== undefined) updates.name = category.name;
+      if (category.color !== undefined) updates.color = category.color;
+      if (category.type !== undefined) {
+        // Handle "both" by setting to null in the database
+        updates.type = category.type === "both" ? null : category.type;
+      }
+
       const { data, error } = await supabase
         .from('categories')
-        .update(category)
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
 
+      const updatedCategory = mapSupabaseCategoryToCategory(data);
       setCategories(prev => 
-        prev.map(c => c.id === id ? { ...c, ...data } : c)
+        prev.map(c => c.id === id ? updatedCategory : c)
       );
 
       toast({
