@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["transaction_type"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -33,6 +63,68 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          category_id: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          invoice_path: string | null
+          notes: string | null
+          recurring: boolean | null
+          recurring_frequency: string | null
+          total_amount: number
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at: string
+          user_id: string
+          vat: number
+        }
+        Insert: {
+          amount: number
+          category_id: string
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          invoice_path?: string | null
+          notes?: string | null
+          recurring?: boolean | null
+          recurring_frequency?: string | null
+          total_amount: number
+          type: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id: string
+          vat: number
+        }
+        Update: {
+          amount?: number
+          category_id?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          invoice_path?: string | null
+          notes?: string | null
+          recurring?: boolean | null
+          recurring_frequency?: string | null
+          total_amount?: number
+          type?: Database["public"]["Enums"]["transaction_type"]
+          updated_at?: string
+          user_id?: string
+          vat?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -41,7 +133,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      transaction_type: "expense" | "revenue"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -156,6 +248,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      transaction_type: ["expense", "revenue"],
+    },
   },
 } as const
