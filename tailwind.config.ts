@@ -24,6 +24,13 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				finance: {
+					positive: '#34D399', // green for profits/income
+					negative: '#EF4444', // red for expenses/losses
+					neutral: '#8E9196', // neutral gray
+					highlight: '#9b87f5', // purple highlight
+					light: '#F1F0FB',   // light background
+				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
