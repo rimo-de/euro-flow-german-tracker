@@ -1,12 +1,19 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    navigate("/");
-  }, [navigate]);
+    if (user) {
+      navigate("/");
+    } else {
+      navigate("/auth");
+    }
+  }, [navigate, user]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
