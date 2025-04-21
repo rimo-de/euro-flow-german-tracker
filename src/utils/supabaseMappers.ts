@@ -1,4 +1,3 @@
-
 import { Transaction, CategoryType, TransactionType } from "@/types/finance";
 import { Database } from "@/integrations/supabase/types";
 
@@ -27,12 +26,13 @@ export const mapSupabaseTransactionToTransaction = (st: SupabaseTransaction): Tr
   };
 };
 
-export const mapSupabaseCategoryToCategory = (sc: SupabaseCategory): CategoryType => {
+export const mapSupabaseCategoryToCategory = (sc: SupabaseCategory): CategoryType & { vatApplicable?: boolean } => {
   return {
     id: sc.id,
     name: sc.name,
     type: sc.type === "expense" || sc.type === "revenue" ? sc.type : "both",
-    color: sc.color || undefined
+    color: sc.color || undefined,
+    vatApplicable: sc.vat_applicable ?? true,
   };
 };
 

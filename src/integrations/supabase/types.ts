@@ -18,6 +18,7 @@ export type Database = {
           type: Database["public"]["Enums"]["transaction_type"] | null
           updated_at: string
           user_id: string
+          vat_applicable: boolean
         }
         Insert: {
           color?: string | null
@@ -27,6 +28,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["transaction_type"] | null
           updated_at?: string
           user_id: string
+          vat_applicable?: boolean
         }
         Update: {
           color?: string | null
@@ -36,6 +38,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["transaction_type"] | null
           updated_at?: string
           user_id?: string
+          vat_applicable?: boolean
         }
         Relationships: []
       }
