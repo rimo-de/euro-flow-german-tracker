@@ -1,3 +1,4 @@
+
 import { Transaction, CategoryType, TransactionType } from "@/types/finance";
 import { Database } from "@/integrations/supabase/types";
 
@@ -57,7 +58,7 @@ export const mapTransactionToSupabase = (
 };
 
 export const mapCategoryToSupabase = (
-  c: Omit<CategoryType, "id">, 
+  c: Omit<CategoryType, "id"> & { vatApplicable?: boolean }, 
   userId: string
 ): Omit<SupabaseCategory, "id" | "created_at" | "updated_at"> => {
   const dbType = c.type === "both" ? null : c.type;
@@ -66,6 +67,7 @@ export const mapCategoryToSupabase = (
     name: c.name,
     type: dbType,
     color: c.color || null,
-    user_id: userId
+    user_id: userId,
+    vat_applicable: c.vatApplicable ?? true
   };
 };
