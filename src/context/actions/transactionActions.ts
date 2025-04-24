@@ -1,47 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import {
-  mapSupabaseTransactionToTransaction,
-  mapSupabaseCategoryToCategory,
-  mapTransactionToSupabase,
-  mapCategoryToSupabase,
-} from "@/utils/supabaseMappers";
-import { Transaction, CategoryType, TransactionType } from "@/types/finance";
+import { Transaction } from "@/types/finance";
+import { mapSupabaseTransactionToTransaction, mapTransactionToSupabase } from "@/utils/supabaseMappers";
+import { ToastActionElement } from "@/components/ui/toast";
 
-type FinanceContextActions = {
-  userId: string;
-  transactions: Transaction[];
-  setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>;
-  categories: CategoryType[];
-  setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>;
-  toast: (args: { title: string; description?: string; variant?: "default" | "destructive" }) => void;
-};
+type ToastFunction = (args: { title: string; description?: string; variant?: "default" | "destructive" }) => void;
 
-export const loadFinanceData = async (
+export const loadTransactions = async (
   userId: string,
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>,
-  setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
-  toast: FinanceContextActions["toast"]
+  toast: ToastFunction
 ) => {
   try {
-    // Load categories with vat_applicable
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (categoriesError) throw categoriesError;
-
-    const mappedCategories = categoriesData.map((cat) => {
-      // Include vatApplicable from vat_applicable column
-      return {
-        ...mapSupabaseCategoryToCategory(cat),
-        vatApplicable: cat.vat_applicable,
-      };
-    });
-    setCategories(mappedCategories);
-
     const { data: transactionsData, error: transactionsError } = await supabase
       .from("transactions")
       .select(`
@@ -55,7 +25,6 @@ export const loadFinanceData = async (
 
     const mappedTransactions = transactionsData.map((tx) => {
       const tr = mapSupabaseTransactionToTransaction(tx);
-      // Override VAT to 0 if category vat_applicable is false
       if (tx.category && tx.category.vat_applicable === false) {
         return {
           ...tr,
@@ -68,15 +37,13 @@ export const loadFinanceData = async (
 
     setTransactions(mappedTransactions);
   } catch (error: any) {
-    console.error("Error loading finance data:", error.message);
+    console.error("Error loading transactions:", error.message);
     toast({
       title: "Error loading data",
-      description: "There was a problem loading your financial data.",
+      description: "There was a problem loading your transactions.",
       variant: "destructive",
     });
-    // To be safe clear on error
     setTransactions([]);
-    setCategories([]);
   }
 };
 
@@ -84,7 +51,7 @@ export const addTransaction = async (
   transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">,
   userId: string,
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>,
-  toast: FinanceContextActions["toast"]
+  toast: ToastFunction
 ) => {
   try {
     const supabaseTransaction = mapTransactionToSupabase(transaction, userId);
@@ -98,7 +65,6 @@ export const addTransaction = async (
 
     let newTransaction = mapSupabaseTransactionToTransaction(data);
 
-    // Check VAT applicable for category
     const { data: categoryData, error: catError } = await supabase
       .from("categories")
       .select("vat_applicable")
@@ -116,7 +82,6 @@ export const addTransaction = async (
     }
 
     setTransactions((prev) => [newTransaction, ...prev]);
-
     toast({
       title: "Transaction added",
       description: "Your transaction has been successfully added.",
@@ -137,7 +102,7 @@ export const updateTransaction = async (
   transaction: Partial<Transaction>,
   userId: string,
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>,
-  toast: FinanceContextActions["toast"]
+  toast: ToastFunction
 ) => {
   try {
     const updates: Record<string, any> = {};
@@ -165,7 +130,6 @@ export const updateTransaction = async (
 
     let updatedTransaction = mapSupabaseTransactionToTransaction(data);
 
-    // Check VAT applicable for category on update
     const { data: categoryData, error: catError } = await supabase
       .from("categories")
       .select("vat_applicable")
@@ -204,7 +168,7 @@ export const updateTransaction = async (
 export const deleteTransaction = async (
   id: string,
   setTransactions: React.Dispatch<React.SetStateAction<Transaction[]>>,
-  toast: FinanceContextActions["toast"]
+  toast: ToastFunction
 ) => {
   try {
     const { error } = await supabase.from("transactions").delete().eq("id", id);
@@ -212,7 +176,7 @@ export const deleteTransaction = async (
     if (error) throw error;
 
     setTransactions((prev) => prev.filter((t) => t.id !== id));
-
+    
     toast({
       title: "Transaction deleted",
       description: "Your transaction has been successfully deleted.",
@@ -227,124 +191,3 @@ export const deleteTransaction = async (
     throw error;
   }
 };
-
-export const addCategory = async (
-  category: Omit<CategoryType, "id"> & { vatApplicable?: boolean },
-  userId: string,
-  setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
-  toast: FinanceContextActions["toast"]
-) => {
-  try {
-    const categoryToInsert = { ...category };
-    // Map vatApplicable to vat_applicable in DB
-    const supabaseCategory = mapCategoryToSupabase(categoryToInsert, userId);
-    // Explicitly add vat_applicable column 
-    (supabaseCategory as any).vat_applicable = category.vatApplicable ?? true;
-
-    const { data, error } = await supabase
-      .from("categories")
-      .insert(supabaseCategory)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const newCategoryData = data;
-    const newCategory = {
-      ...mapSupabaseCategoryToCategory(newCategoryData),
-      vatApplicable: newCategoryData.vat_applicable,
-    };
-    setCategories((prev) => [...prev, newCategory]);
-
-    toast({
-      title: "Category added",
-      description: "Your category has been successfully added.",
-    });
-  } catch (error: any) {
-    console.error("Error adding category:", error.message);
-    toast({
-      title: "Error adding category",
-      description: error.message,
-      variant: "destructive",
-    });
-    throw error;
-  }
-};
-
-export const updateCategory = async (
-  id: string,
-  category: Partial<CategoryType> & { vatApplicable?: boolean },
-  setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
-  toast: FinanceContextActions["toast"]
-) => {
-  try {
-    const updates: Record<string, any> = {};
-    if (category.name !== undefined) updates.name = category.name;
-    if (category.color !== undefined) updates.color = category.color;
-    if (category.type !== undefined) {
-      updates.type = category.type === "both" ? null : category.type;
-    }
-    if (category.vatApplicable !== undefined) {
-      updates.vat_applicable = category.vatApplicable;
-    }
-
-    const { data, error } = await supabase
-      .from("categories")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    const updatedCategoryData = data;
-    const updatedCategory = {
-      ...mapSupabaseCategoryToCategory(updatedCategoryData),
-      vatApplicable: updatedCategoryData.vat_applicable,
-    };
-    setCategories((prev) =>
-      prev.map((c) => (c.id === id ? updatedCategory : c))
-    );
-
-    toast({
-      title: "Category updated",
-      description: "Your category has been successfully updated.",
-    });
-  } catch (error: any) {
-    console.error("Error updating category:", error.message);
-    toast({
-      title: "Error updating category",
-      description: error.message,
-      variant: "destructive",
-    });
-    throw error;
-  }
-};
-
-export const deleteCategory = async (
-  id: string,
-  setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
-  toast: FinanceContextActions["toast"]
-) => {
-  try {
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-
-    if (error) throw error;
-
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-
-    toast({
-      title: "Category deleted",
-      description: "Your category has been successfully deleted.",
-    });
-  } catch (error: any) {
-    console.error("Error deleting category:", error.message);
-    toast({
-      title: "Error deleting category",
-      description: error.message,
-      variant: "destructive",
-    });
-    throw error;
-  }
-};
-

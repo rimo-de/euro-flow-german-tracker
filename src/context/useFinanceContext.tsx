@@ -4,15 +4,13 @@ import { Transaction, CategoryType } from "@/types/finance";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { FinanceContextType } from "./financeTypes";
-import * as financeActions from "./financeActions";
+import { loadFinanceData } from "./actions/dataActions";
+import { addTransaction, updateTransaction, deleteTransaction } from "./actions/transactionActions";
+import { addCategory, updateCategory, deleteCategory } from "./actions/categoryActions";
 
-export const FinanceContext = createContext<FinanceContextType | undefined>(
-  undefined
-);
+export const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,8 +19,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (user) {
       setLoading(true);
-      financeActions
-        .loadFinanceData(user.id, setTransactions, setCategories, toast)
+      loadFinanceData(user.id, setTransactions, setCategories, toast)
         .finally(() => {
           setLoading(false);
         });
@@ -58,18 +55,18 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
       value={{
         transactions,
         categories,
-        addTransaction: (transaction) =>
-          financeActions.addTransaction(transaction, user.id, setTransactions, toast),
+        addTransaction: (transaction) => 
+          addTransaction(transaction, user.id, setTransactions, toast),
         updateTransaction: (id, transaction) =>
-          financeActions.updateTransaction(id, transaction, user.id, setTransactions, toast),
-        deleteTransaction: (id) =>
-          financeActions.deleteTransaction(id, setTransactions, toast),
+          updateTransaction(id, transaction, user.id, setTransactions, toast),
+        deleteTransaction: (id) => 
+          deleteTransaction(id, setTransactions, toast),
         addCategory: (category) =>
-          financeActions.addCategory(category, user.id, setCategories, toast),
+          addCategory(category, user.id, setCategories, toast),
         updateCategory: (id, category) =>
-          financeActions.updateCategory(id, category, setCategories, toast),
+          updateCategory(id, category, setCategories, toast),
         deleteCategory: (id) =>
-          financeActions.deleteCategory(id, setCategories, toast),
+          deleteCategory(id, setCategories, toast),
         loading,
       }}
     >
