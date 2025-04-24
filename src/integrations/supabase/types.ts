@@ -66,6 +66,36 @@ export type Database = {
         }
         Relationships: []
       }
+      settings: {
+        Row: {
+          auto_backup: boolean
+          auto_vat: boolean
+          created_at: string
+          currency_display: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_backup?: boolean
+          auto_vat?: boolean
+          created_at?: string
+          currency_display?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_backup?: boolean
+          auto_vat?: boolean
+          created_at?: string
+          currency_display?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
