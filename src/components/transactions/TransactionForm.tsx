@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Transaction, CategoryType, TransactionType } from "@/types/finance";
 import { calculateVAT, calculateGrossAmount } from "@/utils/financeUtils";
@@ -8,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useSettings } from "@/context/useSettingsContext";
+import { uploadInvoice } from "@/utils/fileUtils";
+import { useAuth } from "@/context/AuthContext";
 
 interface TransactionFormProps {
   transaction?: Transaction;
@@ -49,27 +51,27 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const [invoicePath, setInvoicePath] = useState<string | undefined>(
     transaction?.invoicePath
   );
+  const [file, setFile] = useState<File | null>(null);
+  const { settings } = useSettings();
+  const { user } = useAuth();
 
-  // Calculate VAT and total
-  const vat = amount ? calculateVAT(parseFloat(amount)) : 0;
-  const total = amount ? calculateGrossAmount(parseFloat(amount)) : 0;
+  const vat = amount && settings.autoVat ? calculateVAT(parseFloat(amount)) : 0;
+  const total = amount ? (settings.autoVat ? calculateGrossAmount(parseFloat(amount)) : parseFloat(amount)) : 0;
 
-  // Filter categories based on type
   const filteredCategories = categories.filter(
     (category) => category.type === "both" || category.type === type
   );
 
-  // Set default category if none selected
   useEffect(() => {
     if (!categoryId && filteredCategories.length > 0) {
       setCategoryId(filteredCategories[0].id);
     }
   }, [categoryId, filteredCategories]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!categoryId || !description || !amount) {
+    if (!categoryId || !description || !amount || !user) {
       alert("Please fill in all required fields");
       return;
     }
@@ -80,13 +82,18 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       return;
     }
 
+    let invoicePath = transaction?.invoicePath;
+    if (file) {
+      invoicePath = await uploadInvoice(file, user.id);
+    }
+
     const newTransaction: Omit<Transaction, "id" | "createdAt" | "updatedAt"> = {
       date: new Date(date),
       type,
       categoryId,
       description,
       amount: parsedAmount,
-      vat,
+      vat: settings.autoVat ? vat : 0,
       totalAmount: total,
       notes: notes.trim() || undefined,
       invoicePath,
@@ -99,7 +106,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Date and Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="date">Date</Label>
@@ -125,7 +131,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         </div>
       </div>
 
-      {/* Category and Description */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
@@ -157,7 +162,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         </div>
       </div>
 
-      {/* Amount */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="amount">Amount (Net) €</Label>
@@ -173,7 +177,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="vat">VAT (19%) €</Label>
+          <Label htmlFor="vat">VAT ({settings.autoVat ? '19%' : '0%'}) €</Label>
           <Input id="vat" type="number" step="0.01" value={vat} disabled />
         </div>
         <div className="space-y-2">
@@ -182,7 +186,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         </div>
       </div>
 
-      {/* Notes */}
       <div className="space-y-2">
         <Label htmlFor="notes">Notes (Optional)</Label>
         <Textarea
@@ -194,16 +197,21 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         />
       </div>
 
-      {/* Invoice Upload - Placeholder functionality */}
       <div className="space-y-2">
         <Label htmlFor="invoice">Upload Invoice (Optional)</Label>
-        <Input id="invoice" type="file" disabled className="cursor-not-allowed" />
-        <p className="text-xs text-gray-500">
-          Invoice upload functionality will be implemented in a future update
-        </p>
+        <Input
+          id="invoice"
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        {transaction?.invoicePath && (
+          <p className="text-sm text-gray-500">
+            Current invoice: {transaction.invoicePath.split('/').pop()}
+          </p>
+        )}
       </div>
 
-      {/* Recurring Transaction */}
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <Checkbox
@@ -239,7 +247,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         )}
       </div>
 
-      {/* Form Actions */}
       <div className="flex justify-end space-x-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel

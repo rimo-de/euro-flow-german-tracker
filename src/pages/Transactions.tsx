@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import TransactionTable from "@/components/transactions/TransactionTable";
@@ -7,8 +6,10 @@ import { useFinance } from "@/context/FinanceContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Transaction } from "@/types/finance";
-import { Plus } from "lucide-react";
+import { Plus, Download } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { exportTransactions, downloadInvoice } from "@/utils/fileUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Transactions = () => {
   const { transactions, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
@@ -16,6 +17,8 @@ const Transactions = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [includeInvoices, setIncludeInvoices] = useState(false);
 
   const handleOpenAddDialog = () => {
     setIsAddDialogOpen(true);
@@ -72,9 +75,13 @@ const Transactions = () => {
     }
   };
 
-  const handleViewInvoice = (path: string) => {
-    // This is a placeholder for invoice viewing functionality
-    alert("Invoice viewing will be implemented in a future update");
+  const handleViewInvoice = async (path: string) => {
+    await downloadInvoice(path);
+  };
+
+  const handleExport = async () => {
+    await exportTransactions(transactions, includeInvoices);
+    setShowExportDialog(false);
   };
 
   return (
@@ -83,10 +90,18 @@ const Transactions = () => {
       subtitle="Manage your business transactions"
     >
       <div className="mb-6 flex justify-between items-center">
-        <div>
+        <div className="flex items-center gap-4">
           <p className="text-gray-500">
             Total Transactions: <strong>{transactions.length}</strong>
           </p>
+          <Button 
+            variant="outline"
+            onClick={() => setShowExportDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
         </div>
         <Button onClick={handleOpenAddDialog} className="bg-finance-highlight hover:bg-finance-highlight/90">
           <Plus className="mr-2 h-4 w-4" />
@@ -102,7 +117,6 @@ const Transactions = () => {
         onViewInvoice={handleViewInvoice}
       />
 
-      {/* Add Transaction Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -116,7 +130,6 @@ const Transactions = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Transaction Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -133,7 +146,6 @@ const Transactions = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -154,6 +166,30 @@ const Transactions = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Export Transactions</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center space-x-2 py-4">
+            <Checkbox
+              id="include-invoices"
+              checked={includeInvoices}
+              onCheckedChange={(checked) => setIncludeInvoices(checked as boolean)}
+            />
+            <Label htmlFor="include-invoices">Include attached invoices</Label>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setShowExportDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleExport}>
+              Export
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 };
