@@ -12,9 +12,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { exportTransactions, downloadInvoice } from "@/utils/fileUtils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useSettings } from "@/context/useSettingsContext";
 
 const Transactions = () => {
   const { transactions, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();
+  const { settings } = useSettings();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Transaction, CategoryType, TransactionType } from "@/types/finance";
 import { calculateVAT, calculateGrossAmount } from "@/utils/financeUtils";
@@ -41,6 +42,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const [amount, setAmount] = useState<string>(
     transaction ? transaction.amount.toString() : ""
   );
+  const [manualVat, setManualVat] = useState<string>(
+    transaction ? transaction.vat.toString() : "0"
+  );
   const [notes, setNotes] = useState<string>(transaction?.notes || "");
   const [recurring, setRecurring] = useState<boolean>(
     transaction ? !!transaction.recurring : false
@@ -55,8 +59,26 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   const { settings } = useSettings();
   const { user } = useAuth();
 
-  const vat = amount && settings.autoVat ? calculateVAT(parseFloat(amount)) : 0;
-  const total = amount ? (settings.autoVat ? calculateGrossAmount(parseFloat(amount)) : parseFloat(amount)) : 0;
+  // Calculate VAT and total based on settings
+  const calculateVatAndTotal = () => {
+    if (!amount || isNaN(parseFloat(amount))) {
+      return { vat: 0, total: 0 };
+    }
+    
+    const parsedAmount = parseFloat(amount);
+    
+    if (settings.autoVat) {
+      const vat = calculateVAT(parsedAmount);
+      const total = calculateGrossAmount(parsedAmount);
+      return { vat, total };
+    } else {
+      const vat = parseFloat(manualVat) || 0;
+      const total = parsedAmount + vat;
+      return { vat, total };
+    }
+  };
+  
+  const { vat, total } = calculateVatAndTotal();
 
   const filteredCategories = categories.filter(
     (category) => category.type === "both" || category.type === type
@@ -82,9 +104,9 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       return;
     }
 
-    let invoicePath = transaction?.invoicePath;
+    let updatedInvoicePath = transaction?.invoicePath;
     if (file) {
-      invoicePath = await uploadInvoice(file, user.id);
+      updatedInvoicePath = await uploadInvoice(file, user.id);
     }
 
     const newTransaction: Omit<Transaction, "id" | "createdAt" | "updatedAt"> = {
@@ -93,10 +115,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       categoryId,
       description,
       amount: parsedAmount,
-      vat: settings.autoVat ? vat : 0,
+      vat: settings.autoVat ? vat : parseFloat(manualVat) || 0,
       totalAmount: total,
       notes: notes.trim() || undefined,
-      invoicePath,
+      invoicePath: updatedInvoicePath,
       recurring,
       recurringFrequency: recurring ? recurringFrequency : undefined,
     };
@@ -177,8 +199,22 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="vat">VAT ({settings.autoVat ? '19%' : '0%'}) €</Label>
-          <Input id="vat" type="number" step="0.01" value={vat} disabled />
+          <Label htmlFor="vat">
+            VAT {settings.autoVat ? '(19% auto)' : '(manual)'} €
+          </Label>
+          {settings.autoVat ? (
+            <Input id="vat" type="number" step="0.01" value={vat} disabled />
+          ) : (
+            <Input 
+              id="vat" 
+              type="number" 
+              step="0.01" 
+              min="0" 
+              value={manualVat} 
+              onChange={(e) => setManualVat(e.target.value)}
+              placeholder="0.00"
+            />
+          )}
         </div>
         <div className="space-y-2">
           <Label htmlFor="total">Total (Gross) €</Label>
