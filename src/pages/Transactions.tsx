@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import TransactionTable from "@/components/transactions/TransactionTable";
@@ -10,6 +11,7 @@ import { Plus, Download } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { exportTransactions, downloadInvoice } from "@/utils/fileUtils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const Transactions = () => {
   const { transactions, categories, addTransaction, updateTransaction, deleteTransaction } = useFinance();

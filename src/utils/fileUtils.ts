@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { Transaction } from "@/types/finance";
 
 export const uploadInvoice = async (file: File, userId: string): Promise<string | null> => {
   try {
