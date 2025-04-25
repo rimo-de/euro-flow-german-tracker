@@ -44,6 +44,18 @@ const Settings = () => {
 
             <div className="flex items-center justify-between">
               <div>
+                <Label htmlFor="manual-vat" className="text-base">Manual VAT Input</Label>
+                <p className="text-sm text-gray-500">Allow manual VAT input for transactions</p>
+              </div>
+              <Switch
+                id="manual-vat"
+                checked={settings.manualVat}
+                onCheckedChange={(checked) => updateSettings({ manualVat: checked })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
                 <Label htmlFor="auto-backup" className="text-base">Automatic Backups</Label>
                 <p className="text-sm text-gray-500">Create automatic backups of your financial data</p>
               </div>

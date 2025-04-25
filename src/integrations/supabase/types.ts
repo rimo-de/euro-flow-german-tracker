@@ -73,6 +73,7 @@ export type Database = {
           created_at: string
           currency_display: boolean
           id: string
+          manual_vat: boolean
           updated_at: string
           user_id: string
         }
@@ -82,6 +83,7 @@ export type Database = {
           created_at?: string
           currency_display?: boolean
           id?: string
+          manual_vat?: boolean
           updated_at?: string
           user_id: string
         }
@@ -91,6 +93,7 @@ export type Database = {
           created_at?: string
           currency_display?: boolean
           id?: string
+          manual_vat?: boolean
           updated_at?: string
           user_id?: string
         }

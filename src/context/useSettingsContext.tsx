@@ -18,6 +18,7 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
     autoVat: true,
     autoBackup: true,
     currencyDisplay: true,
+    manualVat: false,
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -43,12 +44,19 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
           autoVat: data.auto_vat,
           autoBackup: data.auto_backup,
           currencyDisplay: data.currency_display,
+          manualVat: data.manual_vat,
         });
       } else {
         // Create default settings for new user
         const { error: insertError } = await supabase
           .from("settings")
-          .insert({ user_id: user?.id });
+          .insert({
+            user_id: user?.id,
+            auto_vat: true,
+            auto_backup: true,
+            currency_display: true,
+            manual_vat: false,
+          });
 
         if (insertError) throw insertError;
       }
@@ -70,6 +78,7 @@ export const SettingsProvider = ({ children }: { children: React.ReactNode }) =>
         ...(newSettings.autoVat !== undefined && { auto_vat: newSettings.autoVat }),
         ...(newSettings.autoBackup !== undefined && { auto_backup: newSettings.autoBackup }),
         ...(newSettings.currencyDisplay !== undefined && { currency_display: newSettings.currencyDisplay }),
+        ...(newSettings.manualVat !== undefined && { manual_vat: newSettings.manualVat }),
       };
 
       const { error } = await supabase
