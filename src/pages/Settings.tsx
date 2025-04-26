@@ -33,24 +33,14 @@ const Settings = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="auto-vat" className="text-base">Automatic VAT Calculation</Label>
-                <p className="text-sm text-gray-500">Automatically calculate VAT (19%) for all transactions</p>
+                <p className="text-sm text-gray-500">
+                  Automatically calculate VAT (19%) for transactions. You can still mark specific transactions as VAT exempt.
+                </p>
               </div>
               <Switch
                 id="auto-vat"
                 checked={settings.autoVat}
                 onCheckedChange={(checked) => updateSettings({ autoVat: checked })}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="manual-vat" className="text-base">Manual VAT Input</Label>
-                <p className="text-sm text-gray-500">Allow manual VAT input for transactions</p>
-              </div>
-              <Switch
-                id="manual-vat"
-                checked={settings.manualVat}
-                onCheckedChange={(checked) => updateSettings({ manualVat: checked })}
               />
             </div>
 

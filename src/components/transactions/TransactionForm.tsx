@@ -51,11 +51,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     manualVat,
     setManualVat,
     vat,
-    total
+    total,
+    vatExempt,
+    setVatExempt
   } = useVatCalculation(
     transaction?.amount.toString() || "",
     transaction?.vat.toString() || "0",
-    settings.autoVat
+    settings.autoVat,
+    transaction?.vatExempt || false
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,12 +86,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       categoryId,
       description,
       amount: parsedAmount,
-      vat: settings.autoVat ? vat : parseFloat(manualVat) || 0,
+      vat: vatExempt ? 0 : settings.autoVat ? vat : parseFloat(manualVat) || 0,
       totalAmount: total,
       notes: notes.trim() || undefined,
       invoicePath: updatedInvoicePath,
       recurring,
       recurringFrequency: recurring ? recurringFrequency : undefined,
+      vatExempt,
     };
 
     onSubmit(newTransaction);
@@ -116,6 +120,8 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         vat={vat}
         total={total}
         autoVat={settings.autoVat}
+        vatExempt={vatExempt}
+        setVatExempt={setVatExempt}
       />
 
       <div className="space-y-2">
