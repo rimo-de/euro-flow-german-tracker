@@ -1,6 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Transaction } from "@/types/finance";
+import * as XLSX from 'xlsx';
 
 export const uploadInvoice = async (file: File, userId: string): Promise<string | null> => {
   try {
@@ -44,35 +44,60 @@ export const downloadInvoice = async (path: string): Promise<void> => {
 
 export const exportTransactions = async (
   transactions: Transaction[],
-  includeInvoices: boolean
+  includeInvoices: boolean,
+  startDate?: Date,
+  endDate?: Date
 ): Promise<void> => {
-  const csv = transactions.map(t => ({
-    Date: new Date(t.date).toLocaleDateString(),
-    Type: t.type,
-    Description: t.description,
-    Amount: t.amount,
-    VAT: t.vat,
-    Total: t.totalAmount,
-    Notes: t.notes || '',
-    HasInvoice: t.invoicePath ? 'Yes' : 'No'
-  }));
+  try {
+    // Filter transactions by date range if provided
+    let filteredTransactions = transactions;
+    if (startDate || endDate) {
+      filteredTransactions = transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        if (startDate && endDate) {
+          return transactionDate >= startDate && transactionDate <= endDate;
+        } else if (startDate) {
+          return transactionDate >= startDate;
+        } else if (endDate) {
+          return transactionDate <= endDate;
+        }
+        return true;
+      });
+    }
 
-  const csvContent = `data:text/csv;charset=utf-8,${
-    Object.keys(csv[0]).join(',')}\n${
-    csv.map(row => Object.values(row).join(',')).join('\n')}`;
+    // Prepare data for Excel
+    const data = filteredTransactions.map(t => ({
+      Date: new Date(t.date).toLocaleDateString(),
+      Type: t.type,
+      Description: t.description,
+      Amount: t.amount,
+      VAT: t.vat,
+      Total: t.totalAmount,
+      Notes: t.notes || '',
+      HasInvoice: t.invoicePath ? 'Yes' : 'No',
+      'VAT Exempt': t.vatExempt ? 'Yes' : 'No'
+    }));
 
-  const link = document.createElement('a');
-  link.href = encodeURI(csvContent);
-  link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
 
-  if (includeInvoices) {
-    // Download invoices in parallel
-    const invoicePromises = transactions
-      .filter(t => t.invoicePath)
-      .map(t => downloadInvoice(t.invoicePath!));
-    await Promise.all(invoicePromises);
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+
+    // Save workbook
+    const fileName = `transactions_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    if (includeInvoices) {
+      // Download invoices in parallel
+      const invoicePromises = filteredTransactions
+        .filter(t => t.invoicePath)
+        .map(t => downloadInvoice(t.invoicePath!));
+      await Promise.all(invoicePromises);
+    }
+  } catch (error) {
+    console.error('Error exporting transactions:', error);
+    throw error;
   }
 };

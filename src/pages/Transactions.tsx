@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import TransactionTable from "@/components/transactions/TransactionTable";
@@ -67,8 +66,8 @@ const Transactions = () => {
     }
   };
 
-  const handleExport = async () => {
-    await exportTransactions(transactions, includeInvoices);
+  const handleExport = async (startDate?: Date, endDate?: Date) => {
+    await exportTransactions(transactions, includeInvoices, startDate, endDate);
     setShowExportDialog(false);
   };
 
