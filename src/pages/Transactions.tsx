@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import TransactionTable from "@/components/transactions/TransactionTable";
@@ -67,8 +68,13 @@ const Transactions = () => {
   };
 
   const handleExport = async (startDate?: Date, endDate?: Date) => {
-    await exportTransactions(transactions, includeInvoices, startDate, endDate);
-    setShowExportDialog(false);
+    try {
+      await exportTransactions(transactions, includeInvoices, startDate, endDate);
+      setShowExportDialog(false);
+    } catch (error) {
+      console.error("Error exporting transactions:", error);
+      // You could add a toast notification here to inform the user of the error
+    }
   };
 
   return (

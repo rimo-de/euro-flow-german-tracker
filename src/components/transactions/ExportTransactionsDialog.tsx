@@ -28,8 +28,16 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
+  const handleReset = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) handleReset();
+      onOpenChange(open);
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Export Transactions</DialogTitle>
@@ -47,13 +55,13 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
 
           <div className="space-y-2">
             <Label>Date Range (Optional)</Label>
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-[200px] justify-start text-left font-normal",
+                      "w-full sm:w-[180px] justify-start text-left font-normal",
                       !startDate && "text-muted-foreground"
                     )}
                   >
@@ -61,12 +69,13 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
                     {startDate ? format(startDate, "PPP") : "Start date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={startDate}
                     onSelect={setStartDate}
                     initialFocus
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -76,7 +85,7 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-[200px] justify-start text-left font-normal",
+                      "w-full sm:w-[180px] justify-start text-left font-normal",
                       !endDate && "text-muted-foreground"
                     )}
                   >
@@ -84,12 +93,13 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
                     {endDate ? format(endDate, "PPP") : "End date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={endDate}
                     onSelect={setEndDate}
                     initialFocus
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -103,8 +113,7 @@ export const ExportTransactionsDialog: React.FC<ExportTransactionsDialogProps> =
           </Button>
           <Button onClick={() => {
             onExport(startDate, endDate);
-            setStartDate(undefined);
-            setEndDate(undefined);
+            handleReset();
           }}>
             Export
           </Button>
