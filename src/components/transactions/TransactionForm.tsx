@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Transaction, CategoryType } from "@/types/finance";
 import { Button } from "@/components/ui/button";
@@ -58,7 +57,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
     transaction?.amount.toString() || "",
     transaction?.vat.toString() || "0",
     settings.autoVat,
-    transaction?.vatExempt || false
+    transaction?.vatExempt || false // Pass the initial vatExempt value from transaction
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,7 +91,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       invoicePath: updatedInvoicePath,
       recurring,
       recurringFrequency: recurring ? recurringFrequency : undefined,
-      vatExempt,
+      vatExempt, // Make sure to include the vatExempt flag in the transaction
     };
 
     onSubmit(newTransaction);

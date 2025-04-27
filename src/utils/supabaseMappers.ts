@@ -22,6 +22,7 @@ export const mapSupabaseTransactionToTransaction = (st: SupabaseTransaction): Tr
     invoicePath: st.invoice_path || undefined,
     recurring: st.recurring || false,
     recurringFrequency: st.recurring_frequency as "daily" | "weekly" | "monthly" | "yearly" | undefined,
+    vatExempt: st.vat_exempt || false, // Make sure we read the vat_exempt field from the database
     createdAt: new Date(st.created_at),
     updatedAt: new Date(st.updated_at)
   };
@@ -53,6 +54,7 @@ export const mapTransactionToSupabase = (
     invoice_path: t.invoicePath || null,
     recurring: t.recurring || false,
     recurring_frequency: t.recurringFrequency || null,
+    vat_exempt: t.vatExempt || false, // Make sure vatExempt is explicitly included in the mapping
     user_id: userId
   };
 };

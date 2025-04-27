@@ -21,7 +21,7 @@ export type Transaction = {
   invoicePath?: string;
   recurring?: boolean;
   recurringFrequency?: "daily" | "weekly" | "monthly" | "yearly";
-  vatExempt?: boolean;  // New field to mark a transaction as VAT exempt
+  vatExempt: boolean;  // Changed from optional to required with default value
   createdAt: Date;
   updatedAt: Date;
 };
