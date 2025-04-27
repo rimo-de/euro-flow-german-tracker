@@ -38,7 +38,8 @@ export const generateMockTransactions = (count: number): Transaction[] => {
     const category = categoryPool[Math.floor(Math.random() * categoryPool.length)];
     const date = randomDate();
     const amount = parseFloat((Math.random() * 2000 + 50).toFixed(2));
-    const vat = parseFloat((amount * 0.19).toFixed(2));
+    const vatExempt = Math.random() > 0.8; // 20% chance of being VAT exempt
+    const vat = vatExempt ? 0 : parseFloat((amount * 0.19).toFixed(2));
     const totalAmount = parseFloat((amount + vat).toFixed(2));
     
     transactions.push({
@@ -53,6 +54,7 @@ export const generateMockTransactions = (count: number): Transaction[] => {
       notes: Math.random() > 0.7 ? `Note for transaction #${i+1}` : undefined,
       recurring: Math.random() > 0.8,
       recurringFrequency: Math.random() > 0.5 ? 'monthly' : 'yearly',
+      vatExempt,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
