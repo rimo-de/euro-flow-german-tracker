@@ -50,10 +50,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
       <div className="auth-card animate-fade-in">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-6">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+            Finance Tracker
+          </h1>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
             {isSignUp ? "Create your account" : "Sign in to your account"}
           </h2>
         </div>
@@ -104,6 +107,9 @@ const Auth = () => {
           </div>
         </form>
       </div>
+      <footer className="mt-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        © 2025 Finance Tracker. All rights reserved.
+      </footer>
     </div>
   );
 };
