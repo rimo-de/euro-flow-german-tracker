@@ -51,9 +51,9 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+      <div className="auth-card animate-fade-in">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-6">
             {isSignUp ? "Create your account" : "Sign in to your account"}
           </h2>
         </div>
@@ -61,41 +61,41 @@ const Auth = () => {
           <div className="space-y-4">
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input
+              <input
                 type="email"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
+                className="auth-input pl-10"
                 required
               />
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <Input
+              <input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
+                className="auth-input pl-10"
                 required
               />
             </div>
           </div>
 
-          <Button
+          <button
             type="submit"
-            className="w-full"
+            className="auth-button hover-scale"
             disabled={loading}
           >
             {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
-          </Button>
+          </button>
 
-          <div className="text-center">
+          <div className="text-center mt-4">
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="auth-link hover-scale"
             >
               {isSignUp
                 ? "Already have an account? Sign in"

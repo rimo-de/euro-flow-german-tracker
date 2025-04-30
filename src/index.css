@@ -80,12 +80,14 @@
   }
 
   .auth-card {
-    @apply bg-white shadow-lg rounded-xl p-8 w-full max-w-md border border-gray-100;
+    @apply bg-white shadow-lg rounded-xl p-8 w-full max-w-md border border-gray-100
+           transform transition-all duration-300;
   }
 
   .auth-input {
     @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm 
-           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+           transition-all duration-300;
   }
 
   .auth-button {
@@ -96,6 +98,27 @@
   }
 
   .auth-link {
-    @apply text-blue-600 hover:text-blue-800 font-medium transition-colors;
+    @apply text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+  
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
   }
 }
