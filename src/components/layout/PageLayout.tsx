@@ -16,7 +16,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children, title, subtitle }) =>
       <main className="flex-grow pt-16">
         <div className="max-w-screen-xl mx-auto px-4 py-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+            <h1 className="text-2xl font-bold finance-gradient-text">{title}</h1>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
           </div>
           

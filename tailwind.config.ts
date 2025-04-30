@@ -62,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Adding finance-specific theme colors
+				finance: {
+					positive: '#10B981', // Green for positive values
+					negative: '#EF4444', // Red for negative values
+					highlight: '#6366F1', // Primary highlight color (indigo)
+					blue: '#3B82F6',     // Blue from the gradient
+					purple: '#8B5CF6',   // Purple from the gradient
 				}
 			},
 			borderRadius: {
@@ -101,6 +109,9 @@ export default {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out'
+			},
+			backgroundImage: {
+				'finance-gradient': 'linear-gradient(to right, #3B82F6, #8B5CF6)'
 			}
 		}
 	},

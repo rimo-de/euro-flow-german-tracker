@@ -23,13 +23,13 @@ export const TransactionsHeader: React.FC<TransactionsHeaderProps> = ({
         <Button
           variant="outline"
           onClick={onExportClick}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 hover-scale"
         >
           <Download className="h-4 w-4" />
           Export
         </Button>
       </div>
-      <Button onClick={onAddClick} className="bg-finance-highlight hover:bg-finance-highlight/90">
+      <Button onClick={onAddClick} className="finance-button">
         <Plus className="mr-2 h-4 w-4" />
         Add Transaction
       </Button>

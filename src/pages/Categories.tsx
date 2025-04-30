@@ -83,23 +83,25 @@ const Categories = () => {
             Total Categories: <strong>{categories.length}</strong>
           </p>
         </div>
-        <Button onClick={handleOpenAddDialog} className="bg-finance-highlight hover:bg-finance-highlight/90">
+        <Button onClick={handleOpenAddDialog} className="finance-button">
           <Plus className="mr-2 h-4 w-4" />
           Add Category
         </Button>
       </div>
 
-      <CategoryList
-        categories={categories}
-        onEdit={handleOpenEditDialog}
-        onDelete={handleOpenDeleteDialog}
-      />
+      <div className="finance-card">
+        <CategoryList
+          categories={categories}
+          onEdit={handleOpenEditDialog}
+          onDelete={handleOpenDeleteDialog}
+        />
+      </div>
 
       {/* Add Category Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Add New Category</DialogTitle>
+            <DialogTitle className="finance-gradient-text">Add New Category</DialogTitle>
           </DialogHeader>
           <CategoryForm
             onSubmit={handleAddCategory}
@@ -112,7 +114,7 @@ const Categories = () => {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle className="finance-gradient-text">Edit Category</DialogTitle>
           </DialogHeader>
           {currentCategory && (
             <CategoryForm

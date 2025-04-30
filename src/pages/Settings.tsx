@@ -1,3 +1,4 @@
+
 import React from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +16,7 @@ const Settings = () => {
     return (
       <PageLayout title="Settings" subtitle="Configure your finance tracker settings">
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
+          <Loader2 className="h-8 w-8 animate-spin text-finance-highlight" />
         </div>
       </PageLayout>
     );
@@ -24,9 +25,9 @@ const Settings = () => {
   return (
     <PageLayout title="Settings" subtitle="Configure your finance tracker settings">
       <div className="space-y-6">
-        <Card>
+        <Card className="finance-shadow">
           <CardHeader>
-            <CardTitle>General Settings</CardTitle>
+            <CardTitle className="finance-gradient-text">General Settings</CardTitle>
             <CardDescription>Configure general application settings</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -71,9 +72,9 @@ const Settings = () => {
         </Card>
 
         {/* Account Settings */}
-        <Card>
+        <Card className="finance-shadow">
           <CardHeader>
-            <CardTitle>Account Settings</CardTitle>
+            <CardTitle className="finance-gradient-text">Account Settings</CardTitle>
             <CardDescription>
               Manage your user account and authentication
             </CardDescription>
@@ -101,49 +102,49 @@ const Settings = () => {
               </div>
             </div>
 
-            <Button variant="outline">Update Account Information</Button>
+            <Button variant="outline" className="hover-scale">Update Account Information</Button>
           </CardContent>
         </Card>
 
         {/* Data Management */}
-        <Card>
+        <Card className="finance-shadow">
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
+            <CardTitle className="finance-gradient-text">Data Management</CardTitle>
             <CardDescription>
               Manage your financial data and backups
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg finance-shadow">
               <div>
                 <h3 className="font-medium">Database Backup</h3>
                 <p className="text-sm text-gray-500">Last backup: Today at 08:30</p>
               </div>
-              <Button variant="outline">Create Backup</Button>
+              <Button variant="outline" className="hover-scale">Create Backup</Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg finance-shadow">
               <div>
                 <h3 className="font-medium">Import Data</h3>
                 <p className="text-sm text-gray-500">Import data from Excel, CSV or JSON</p>
               </div>
-              <Button variant="outline">Import</Button>
+              <Button variant="outline" className="hover-scale">Import</Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg finance-shadow">
               <div>
                 <h3 className="font-medium">Export All Data</h3>
                 <p className="text-sm text-gray-500">Export all financial data</p>
               </div>
-              <Button variant="outline">Export</Button>
+              <Button variant="outline" className="hover-scale">Export</Button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg finance-shadow">
               <div>
                 <h3 className="font-medium text-red-800">Delete All Data</h3>
                 <p className="text-sm text-red-600">This action cannot be undone</p>
               </div>
-              <Button variant="destructive">Delete All</Button>
+              <Button variant="destructive" className="hover-scale">Delete All</Button>
             </div>
           </CardContent>
         </Card>

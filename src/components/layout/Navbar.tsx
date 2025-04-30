@@ -1,35 +1,38 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { ChartBar, FolderOpen, Receipt, Settings, FileSpreadsheet } from "lucide-react";
+
 const Navbar = () => {
-  return <nav className="bg-white border-b border-gray-200 fixed w-full z-30 shadow-sm">
+  return (
+    <nav className="bg-white border-b border-gray-200 fixed w-full z-30 shadow-sm">
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <span className="text-xl font-semibold text-gray-800">Finance</span>
-              <span className="ml-2 text-finance-highlight font-bold">Tracker</span>
+              <span className="ml-2 finance-gradient-text font-bold">Tracker</span>
             </Link>
           </div>
           
           <div className="hidden md:flex space-x-6">
-            <Link to="/" className="flex items-center text-gray-600 hover:text-finance-highlight px-2 py-1 rounded-md hover:bg-gray-50">
+            <Link to="/" className="finance-nav-link">
               <ChartBar className="mr-1 h-5 w-5" />
               <span>Dashboard</span>
             </Link>
-            <Link to="/transactions" className="flex items-center text-gray-600 hover:text-finance-highlight px-2 py-1 rounded-md hover:bg-gray-50">
+            <Link to="/transactions" className="finance-nav-link">
               <Receipt className="mr-1 h-5 w-5" />
               <span>Transactions</span>
             </Link>
-            <Link to="/categories" className="flex items-center text-gray-600 hover:text-finance-highlight px-2 py-1 rounded-md hover:bg-gray-50">
+            <Link to="/categories" className="finance-nav-link">
               <FolderOpen className="mr-1 h-5 w-5" />
               <span>Categories</span>
             </Link>
-            <Link to="/reports" className="flex items-center text-gray-600 hover:text-finance-highlight px-2 py-1 rounded-md hover:bg-gray-50">
+            <Link to="/reports" className="finance-nav-link">
               <FileSpreadsheet className="mr-1 h-5 w-5" />
               <span>Reports</span>
             </Link>
-            <Link to="/settings" className="flex items-center text-gray-600 hover:text-finance-highlight px-2 py-1 rounded-md hover:bg-gray-50">
+            <Link to="/settings" className="finance-nav-link">
               <Settings className="mr-1 h-5 w-5" />
               <span>Settings</span>
             </Link>
@@ -55,6 +58,8 @@ const Navbar = () => {
           <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-finance-highlight hover:bg-gray-50">Settings</Link>
         </div>
       </div>
-    </nav>;
+    </nav>
+  );
 };
+
 export default Navbar;

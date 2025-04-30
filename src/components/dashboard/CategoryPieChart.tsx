@@ -16,7 +16,7 @@ interface CategoryPieChartProps {
 
 const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data, title, className = "" }) => {
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-6 ${className}`}>
+    <div className={`finance-card ${className}`}>
       <h3 className="text-gray-700 font-medium mb-4">{title}</h3>
       
       <div className="h-64">

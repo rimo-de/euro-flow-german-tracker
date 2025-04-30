@@ -20,10 +20,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   const isPositive = change && change > 0;
   
   return (
-    <div className={`bg-white rounded-lg shadow-sm p-6 ${className}`}>
+    <div className={`finance-card ${className}`}>
       <div className="flex items-center justify-between">
         <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
-        {icon && <div className="text-gray-400">{icon}</div>}
+        {icon && <div className="text-finance-highlight">{icon}</div>}
       </div>
       
       <div className="mt-2">
@@ -31,7 +31,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
         
         {change !== undefined && (
           <div className="flex items-center mt-2">
-            <span className={`text-xs font-medium ${isPositive ? 'text-finance-positive' : 'text-finance-negative'}`}>
+            <span className={`text-xs font-medium ${isPositive ? 'finance-positive' : 'finance-negative'}`}>
               {isPositive ? <ArrowUp className="inline h-3 w-3 mr-1" /> : <ArrowDown className="inline h-3 w-3 mr-1" />}
               {Math.abs(change)}%
             </span>

@@ -157,13 +157,13 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="finance-card">
         <h3 className="text-gray-700 font-medium mb-4">Quick Stats</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg finance-shadow">
             <p className="text-sm text-gray-500">Total Revenue (YTD)</p>
-            <p className="text-xl font-semibold text-finance-positive mt-1">
+            <p className="text-xl font-semibold finance-positive mt-1">
               {formatCurrency(
                 transactions
                   .filter(t => t.type === "revenue" && new Date(t.date).getFullYear() === new Date().getFullYear())
@@ -172,9 +172,9 @@ const Dashboard = () => {
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg finance-shadow">
             <p className="text-sm text-gray-500">Total Expenses (YTD)</p>
-            <p className="text-xl font-semibold text-finance-negative mt-1">
+            <p className="text-xl font-semibold finance-negative mt-1">
               {formatCurrency(
                 transactions
                   .filter(t => t.type === "expense" && new Date(t.date).getFullYear() === new Date().getFullYear())
@@ -183,7 +183,7 @@ const Dashboard = () => {
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg finance-shadow">
             <p className="text-sm text-gray-500">Total VAT Paid</p>
             <p className="text-xl font-semibold text-gray-700 mt-1">
               {formatCurrency(
@@ -194,7 +194,7 @@ const Dashboard = () => {
             </p>
           </div>
           
-          <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="bg-gray-50 p-4 rounded-lg finance-shadow">
             <p className="text-sm text-gray-500">Total VAT Collected</p>
             <p className="text-xl font-semibold text-gray-700 mt-1">
               {formatCurrency(
