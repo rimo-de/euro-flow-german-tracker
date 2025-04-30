@@ -1,22 +1,13 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
-import { 
-  ChartBar, 
-  FolderOpen, 
-  Receipt, 
-  Settings,
-  FileSpreadsheet
-} from "lucide-react";
-
+import { ChartBar, FolderOpen, Receipt, Settings, FileSpreadsheet } from "lucide-react";
 const Navbar = () => {
-  return (
-    <nav className="bg-white border-b border-gray-200 fixed w-full z-30 shadow-sm">
+  return <nav className="bg-white border-b border-gray-200 fixed w-full z-30 shadow-sm">
       <div className="max-w-screen-xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <span className="text-xl font-semibold text-gray-800">Euro-Flow</span>
+              <span className="text-xl font-semibold text-gray-800">Finance</span>
               <span className="ml-2 text-finance-highlight font-bold">Tracker</span>
             </Link>
           </div>
@@ -64,8 +55,6 @@ const Navbar = () => {
           <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-finance-highlight hover:bg-gray-50">Settings</Link>
         </div>
       </div>
-    </nav>
-  );
+    </nav>;
 };
-
 export default Navbar;
