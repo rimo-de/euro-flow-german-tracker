@@ -51,11 +51,11 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-fade-in">
+        Finance Tracker
+      </h1>
       <div className="auth-card animate-fade-in">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-            Finance Tracker
-          </h1>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
             {isSignUp ? "Create your account" : "Sign in to your account"}
           </h2>
