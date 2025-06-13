@@ -60,53 +60,6 @@ const Auth = () => {
       <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent animate-fade-in">
         Finance Tracker
       </h1>
-      
-      {/* Demo Accounts Section */}
-      <div className="auth-card animate-fade-in mb-4">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
-            <User className="h-5 w-5 text-blue-500" />
-            Demo Accounts for Testing
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Click "Use" to auto-fill credentials for quick testing
-          </p>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-            <div className="flex-1">
-              <p className="font-medium text-gray-800">Admin Account</p>
-              <p className="text-sm text-gray-600">admin@digital4pulse.edu</p>
-              <p className="text-xs text-gray-500">Password: password123</p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleDemoAccount("admin@digital4pulse.edu", "password123")}
-              className="hover-scale"
-            >
-              Use
-            </Button>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-            <div className="flex-1">
-              <p className="font-medium text-gray-800">User Account</p>
-              <p className="text-sm text-gray-600">user@digital4pulse.edu</p>
-              <p className="text-xs text-gray-500">Password: password123</p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleDemoAccount("user@digital4pulse.edu", "password123")}
-              className="hover-scale"
-            >
-              Use
-            </Button>
-          </div>
-        </div>
-      </div>
 
       {/* Main Auth Form */}
       <div className="auth-card animate-fade-in">
@@ -161,6 +114,53 @@ const Auth = () => {
             </button>
           </div>
         </form>
+      </div>
+      
+      {/* Demo Accounts Section - Moved below main form */}
+      <div className="auth-card animate-fade-in mt-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
+            <User className="h-5 w-5 text-blue-500" />
+            Demo Accounts for Testing
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Click "Use" to auto-fill credentials for quick testing
+          </p>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+            <div className="flex-1">
+              <p className="font-medium text-gray-800">Admin Account</p>
+              <p className="text-sm text-gray-600">admin@digital4pulse.edu</p>
+              <p className="text-xs text-gray-500">Password: password123</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDemoAccount("admin@digital4pulse.edu", "password123")}
+              className="hover-scale"
+            >
+              Use
+            </Button>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+            <div className="flex-1">
+              <p className="font-medium text-gray-800">User Account</p>
+              <p className="text-sm text-gray-600">user@digital4pulse.edu</p>
+              <p className="text-xs text-gray-500">Password: password123</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDemoAccount("user@digital4pulse.edu", "password123")}
+              className="hover-scale"
+            >
+              Use
+            </Button>
+          </div>
+        </div>
       </div>
       
       <footer className="mt-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: "0.3s" }}>
