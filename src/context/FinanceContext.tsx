@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -6,7 +7,6 @@ import React, {
   useCallback,
 } from "react";
 import { CategoryType, Transaction } from "@/types/finance";
-import { v4 as uuidv4 } from "uuid";
 import * as categoryActions from "./actions/categoryActions";
 import * as transactionActions from "./actions/transactionActions";
 import { useAuth } from "./AuthContext";
@@ -57,11 +57,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
     await categoryActions.updateCategory(id, category, setCategories, toast);
   };
 
-  // Update the deleteCategory function call in the context
-  const deleteCategory = (id: string, categoryName?: string) => {
+  const deleteCategory = async (id: string, categoryName?: string) => {
     const categoryToDelete = categories.find(c => c.id === id);
     const name = categoryName || categoryToDelete?.name || "Unknown Category";
-    return categoryActions.deleteCategory(id, name, setCategories, toast);
+    await categoryActions.deleteCategory(id, name, setCategories, toast);
   };
 
   const loadTransactions = useCallback(async () => {

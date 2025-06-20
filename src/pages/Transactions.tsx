@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import TransactionTable from "@/components/transactions/TransactionTable";
@@ -22,7 +21,7 @@ const Transactions = () => {
   const handleOpenAddDialog = () => setIsAddDialogOpen(true);
   const handleCloseAddDialog = () => setIsAddDialogOpen(false);
 
-  const handleAddTransaction = (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
+  const handleAddTransaction = (transaction: Omit<Transaction, "id">) => {
     addTransaction(transaction);
     setIsAddDialogOpen(false);
   };
@@ -40,7 +39,7 @@ const Transactions = () => {
     setCurrentTransaction(null);
   };
 
-  const handleUpdateTransaction = (transaction: Omit<Transaction, "id" | "createdAt" | "updatedAt">) => {
+  const handleUpdateTransaction = (transaction: Omit<Transaction, "id">) => {
     if (currentTransaction) {
       updateTransaction(currentTransaction.id, transaction);
       handleCloseEditDialog();

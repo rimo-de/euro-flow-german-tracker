@@ -66,7 +66,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateCategory: (id, category) =>
           updateCategory(id, category, setCategories, toast),
         deleteCategory: (id) =>
-          deleteCategory(id, setCategories, toast),
+          deleteCategory(id, "Unknown Category", setCategories, toast),
         loading,
       }}
     >
