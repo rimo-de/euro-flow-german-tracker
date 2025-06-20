@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import { useSettings } from "@/context/useSettingsContext";
+import { AccountForm } from "@/components/settings/AccountForm";
 import { Loader2 } from "lucide-react";
 
 const Settings = () => {
@@ -76,33 +76,11 @@ const Settings = () => {
           <CardHeader>
             <CardTitle className="finance-gradient-text">Account Settings</CardTitle>
             <CardDescription>
-              Manage your user account and authentication
+              Manage your user account and company information
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="company-name">Company Name</Label>
-                <Input id="company-name" placeholder="Your Company Name" defaultValue="My German Business" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tax-id">Tax ID (USt-IdNr.)</Label>
-                <Input id="tax-id" placeholder="DE123456789" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" placeholder="you@example.com" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" value="************" />
-              </div>
-            </div>
-
-            <Button variant="outline" className="hover-scale">Update Account Information</Button>
+          <CardContent>
+            <AccountForm />
           </CardContent>
         </Card>
 
