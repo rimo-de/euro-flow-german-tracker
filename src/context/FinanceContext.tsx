@@ -43,51 +43,141 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const loadCategories = useCallback(async () => {
     if (user) {
-      await categoryActions.loadCategories(user.id, setCategories, toast);
+      try {
+        await categoryActions.loadCategories(user.id, setCategories, toast);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+        toast({
+          title: "Error loading categories",
+          description: "Failed to load categories. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   }, [user]);
 
   const addCategory = async (category: Omit<CategoryType, "id">) => {
     if (user) {
-      await categoryActions.addCategory(category, user.id, setCategories, toast);
+      try {
+        await categoryActions.addCategory(category, user.id, setCategories, toast);
+      } catch (error) {
+        console.error("Error adding category:", error);
+        toast({
+          title: "Error adding category",
+          description: "Failed to add category. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const updateCategory = async (id: string, category: Partial<CategoryType>) => {
     if (user) {
-      await categoryActions.updateCategory(id, category, setCategories, toast);
+      try {
+        await categoryActions.updateCategory(id, category, setCategories, toast);
+      } catch (error) {
+        console.error("Error updating category:", error);
+        toast({
+          title: "Error updating category",
+          description: "Failed to update category. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const deleteCategory = async (id: string, categoryName?: string) => {
     if (user) {
-      const categoryToDelete = categories.find(c => c.id === id);
-      const name = categoryName || categoryToDelete?.name || "Unknown Category";
-      await categoryActions.deleteCategory(id, name, setCategories, toast);
+      try {
+        const categoryToDelete = categories.find(c => c.id === id);
+        const name = categoryName || categoryToDelete?.name || "Unknown Category";
+        await categoryActions.deleteCategory(id, name, setCategories, toast);
+      } catch (error) {
+        console.error("Error deleting category:", error);
+        toast({
+          title: "Error deleting category",
+          description: "Failed to delete category. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const loadTransactions = useCallback(async () => {
     if (user) {
-      await transactionActions.loadTransactions(user.id, setTransactions, toast);
+      try {
+        await transactionActions.loadTransactions(user.id, setTransactions, toast);
+      } catch (error) {
+        console.error("Error loading transactions:", error);
+        toast({
+          title: "Error loading transactions",
+          description: "Failed to load transactions. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   }, [user]);
 
   const addTransaction = async (transaction: Omit<Transaction, "id">) => {
     if (user) {
-      await transactionActions.addTransaction(transaction, user.id, setTransactions, toast);
+      try {
+        await transactionActions.addTransaction(transaction, user.id, setTransactions, toast);
+      } catch (error) {
+        console.error("Error adding transaction:", error);
+        toast({
+          title: "Error adding transaction",
+          description: "Failed to add transaction. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const updateTransaction = async (id: string, transaction: Partial<Transaction>) => {
     if (user) {
-      await transactionActions.updateTransaction(id, transaction, user.id, setTransactions, toast);
+      try {
+        await transactionActions.updateTransaction(id, transaction, user.id, setTransactions, toast);
+      } catch (error) {
+        console.error("Error updating transaction:", error);
+        toast({
+          title: "Error updating transaction",
+          description: "Failed to update transaction. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   const deleteTransaction = async (id: string) => {
-    if (user) {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to delete transactions.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Validate that transaction exists
+      const transactionExists = transactions.find(t => t.id === id);
+      if (!transactionExists) {
+        toast({
+          title: "Transaction not found",
+          description: "The transaction you're trying to delete doesn't exist.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       await transactionActions.deleteTransaction(id, setTransactions, toast);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast({
+        title: "Error deleting transaction",
+        description: "Failed to delete transaction. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
