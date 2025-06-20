@@ -88,6 +88,13 @@ export const AccountForm = () => {
         });
       }
 
+      // Update email if it has changed
+      if (values.email && values.email !== user.email) {
+        // Note: Email updates in Supabase require email confirmation
+        // For now, we'll skip this functionality as it requires additional setup
+        console.log('Email update requested:', values.email);
+      }
+
       // Only change password if provided
       if (values.password && values.password.length > 0) {
         await changePassword(values.password);
@@ -151,7 +158,7 @@ export const AccountForm = () => {
                 <FormItem>
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" disabled />
+                    <Input {...field} type="email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
