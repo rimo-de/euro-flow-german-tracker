@@ -12,16 +12,17 @@ import { useAccountData } from "@/hooks/useAccountData";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 const accountFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
+  firstName: z.string().optional().or(z.string().min(1, "First name must not be empty if provided")),
+  lastName: z.string().optional().or(z.string().min(1, "Last name must not be empty if provided")),
   email: z.string().email("Invalid email address"),
-  companyName: z.string().min(1, "Company name is required"),
+  companyName: z.string().optional().or(z.string().min(1, "Company name must not be empty if provided")),
   vatId: z.string().optional(),
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+  password: z.string().optional().or(z.string().min(6, "Password must be at least 6 characters")),
   confirmPassword: z.string().optional(),
 }).refine((data) => {
-  if (data.password && data.password !== data.confirmPassword) {
-    return false;
+  // Only require password confirmation if a password is provided
+  if (data.password && data.password.length > 0) {
+    return data.password === data.confirmPassword;
   }
   return true;
 }, {
@@ -68,21 +69,27 @@ export const AccountForm = () => {
     if (!user) return;
 
     try {
-      // Update profile
-      await updateProfile({
-        firstName: values.firstName,
-        lastName: values.lastName,
-      });
+      // Only update profile if profile fields have content
+      const hasProfileChanges = values.firstName || values.lastName;
+      if (hasProfileChanges) {
+        await updateProfile({
+          firstName: values.firstName || undefined,
+          lastName: values.lastName || undefined,
+        });
+      }
 
-      // Update company
-      await updateCompany({
-        id: profile?.company?.id,
-        name: values.companyName,
-        vatId: values.vatId,
-      });
+      // Only update company if company fields have content
+      const hasCompanyChanges = values.companyName;
+      if (hasCompanyChanges) {
+        await updateCompany({
+          id: profile?.company?.id,
+          name: values.companyName!,
+          vatId: values.vatId || undefined,
+        });
+      }
 
-      // Change password if provided
-      if (values.password) {
+      // Only change password if provided
+      if (values.password && values.password.length > 0) {
         await changePassword(values.password);
         form.setValue("password", "");
         form.setValue("confirmPassword", "");
@@ -103,80 +110,87 @@ export const AccountForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">Profile Information (Optional)</h3>
+          <p className="text-sm text-gray-600">Update only the fields you want to change. Leave fields empty to keep current values.</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Leave empty to keep current" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Leave empty to keep current" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" disabled />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="companyName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Leave empty to keep current" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
-            name="firstName"
+            name="vatId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <FormLabel>Tax ID (USt-IdNr.)</FormLabel>
                 <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder="DE123456789 (optional)" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address</FormLabel>
-                <FormControl>
-                  <Input {...field} type="email" disabled />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="companyName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="vatId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tax ID (USt-IdNr.)</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="DE123456789" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="space-y-4 border-t pt-4">
           <h3 className="text-lg font-medium">Change Password (Optional)</h3>
+          <p className="text-sm text-gray-600">Leave password fields empty if you don't want to change your password.</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
