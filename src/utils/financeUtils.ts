@@ -13,12 +13,27 @@ export const calculateGrossAmount = (amount: number): number => {
   return parseFloat((amount + calculateVAT(amount)).toFixed(2));
 };
 
-// Format currency as EUR
+// Format currency as EUR (always shows currency symbol)
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
   }).format(amount);
+};
+
+// Format amount conditionally with or without currency symbol
+export const formatAmount = (amount: number, showCurrency: boolean = true): string => {
+  if (showCurrency) {
+    return new Intl.NumberFormat('de-DE', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(amount);
+  } else {
+    return new Intl.NumberFormat('de-DE', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }
 };
 
 // Format date in German format (DD.MM.YYYY)

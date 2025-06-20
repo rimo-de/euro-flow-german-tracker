@@ -1,6 +1,6 @@
 
 import React from "react";
-import { formatCurrency } from "@/utils/financeUtils";
+import { useAmountFormatter } from "@/hooks/useAmountFormatter";
 
 interface TransactionAmountProps {
   amount: number;
@@ -8,9 +8,11 @@ interface TransactionAmountProps {
 }
 
 export const TransactionAmount: React.FC<TransactionAmountProps> = ({ amount, type }) => {
+  const { formatAmountWithSettings } = useAmountFormatter();
+  
   return (
     <span className={type === "expense" ? "text-finance-negative" : "text-finance-positive"}>
-      {formatCurrency(amount)}
+      {formatAmountWithSettings(amount)}
     </span>
   );
 };

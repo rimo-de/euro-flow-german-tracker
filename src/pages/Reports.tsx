@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { useFinance } from "@/context/FinanceContext";
-import { formatCurrency, formatDate } from "@/utils/financeUtils";
+import { formatDate } from "@/utils/financeUtils";
+import { useAmountFormatter } from "@/hooks/useAmountFormatter";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 
 const Reports = () => {
   const { transactions, categories } = useFinance();
+  const { formatAmountWithSettings } = useAmountFormatter();
   const [reportType, setReportType] = useState("profit-loss");
   const [timeframe, setTimeframe] = useState("month");
   
@@ -217,13 +219,13 @@ const Reports = () => {
                           ></div>
                           <span>{category.name}</span>
                         </div>
-                        <span className="font-medium text-green-600">{formatCurrency(category.amount)}</span>
+                        <span className="font-medium text-green-600">{formatAmountWithSettings(category.amount)}</span>
                       </div>
                     ))}
                     
                     <div className="flex justify-between items-center px-4 py-2 bg-green-50 rounded font-medium">
                       <span>Total Revenue</span>
-                      <span className="text-green-600">{formatCurrency(totalRevenue)}</span>
+                      <span className="text-green-600">{formatAmountWithSettings(totalRevenue)}</span>
                     </div>
                   </div>
                 </div>
@@ -240,13 +242,13 @@ const Reports = () => {
                           ></div>
                           <span>{category.name}</span>
                         </div>
-                        <span className="font-medium text-red-600">{formatCurrency(category.amount)}</span>
+                        <span className="font-medium text-red-600">{formatAmountWithSettings(category.amount)}</span>
                       </div>
                     ))}
                     
                     <div className="flex justify-between items-center px-4 py-2 bg-red-50 rounded font-medium">
                       <span>Total Expenses (incl. VAT)</span>
-                      <span className="text-red-600">{formatCurrency(totalExpenses)}</span>
+                      <span className="text-red-600">{formatAmountWithSettings(totalExpenses)}</span>
                     </div>
                   </div>
                 </div>
@@ -255,7 +257,7 @@ const Reports = () => {
                   <div className="flex justify-between items-center px-4 py-3 bg-gray-100 rounded font-bold text-lg">
                     <span>Net Profit/Loss</span>
                     <span className={totalRevenue - totalExpenses >= 0 ? "text-green-600" : "text-red-600"}>
-                      {formatCurrency(totalRevenue - totalExpenses)}
+                      {formatAmountWithSettings(totalRevenue - totalExpenses)}
                     </span>
                   </div>
                 </div>
@@ -268,13 +270,13 @@ const Reports = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card className="p-4">
                     <h3 className="text-lg font-semibold text-gray-700 mb-3">VAT Collected (Output VAT)</h3>
-                    <div className="text-3xl font-bold text-green-600 mb-2">{formatCurrency(totalVatCollected)}</div>
+                    <div className="text-3xl font-bold text-green-600 mb-2">{formatAmountWithSettings(totalVatCollected)}</div>
                     <p className="text-gray-500">From revenue transactions</p>
                   </Card>
                   
                   <Card className="p-4">
                     <h3 className="text-lg font-semibold text-gray-700 mb-3">VAT Paid (Input VAT)</h3>
-                    <div className="text-3xl font-bold text-red-600 mb-2">{formatCurrency(totalVatPaid)}</div>
+                    <div className="text-3xl font-bold text-red-600 mb-2">{formatAmountWithSettings(totalVatPaid)}</div>
                     <p className="text-gray-500">From expense transactions</p>
                   </Card>
                 </div>
@@ -282,7 +284,7 @@ const Reports = () => {
                 <Card className="p-4 bg-gray-50">
                   <h3 className="text-lg font-semibold text-gray-700 mb-3">VAT Balance (To Pay/Refund)</h3>
                   <div className={`text-3xl font-bold mb-2 ${totalVatCollected - totalVatPaid > 0 ? "text-red-600" : "text-green-600"}`}>
-                    {formatCurrency(totalVatCollected - totalVatPaid)}
+                    {formatAmountWithSettings(totalVatCollected - totalVatPaid)}
                   </div>
                   <p className="text-gray-500">
                     {totalVatCollected - totalVatPaid > 0 
@@ -302,7 +304,7 @@ const Reports = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Total Taxable Amount:</span>
-                      <span className="font-medium">{formatCurrency(totalRevenue + totalExpenses)}</span>
+                      <span className="font-medium">{formatAmountWithSettings(totalRevenue + totalExpenses)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600">Number of Transactions:</span>
@@ -330,7 +332,7 @@ const Reports = () => {
                             ></div>
                             <span className="font-medium">{category.name}</span>
                           </div>
-                          <span className="font-bold">{formatCurrency(category.amount)}</span>
+                          <span className="font-bold">{formatAmountWithSettings(category.amount)}</span>
                         </div>
                         <div className="h-2 w-full" style={{ 
                           width: `${(category.amount / totalExpenses) * 100}%`,
@@ -343,7 +345,7 @@ const Reports = () => {
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex justify-between items-center px-4 py-3 bg-gray-100 rounded font-bold">
                         <span>Total Expenses (incl. VAT)</span>
-                        <span className="text-red-600">{formatCurrency(totalExpenses)}</span>
+                        <span className="text-red-600">{formatAmountWithSettings(totalExpenses)}</span>
                       </div>
                     </div>
                   </div>
