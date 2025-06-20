@@ -40,14 +40,14 @@ const Reports = () => {
   
   const filteredTransactions = getFilteredTransactions();
   
-  // Calculate totals
+  // Calculate totals - expenses use totalAmount (including VAT), revenue uses amount
   const totalRevenue = filteredTransactions
     .filter(t => t.type === "revenue")
     .reduce((sum, t) => sum + t.amount, 0);
     
   const totalExpenses = filteredTransactions
     .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
+    .reduce((sum, t) => sum + t.totalAmount, 0);
     
   const totalVatCollected = filteredTransactions
     .filter(t => t.type === "revenue")
@@ -57,7 +57,7 @@ const Reports = () => {
     .filter(t => t.type === "expense")
     .reduce((sum, t) => sum + t.vat, 0);
   
-  // Group expenses by category
+  // Group expenses by category - use totalAmount for actual payment amounts
   const expensesByCategory = categories
     .filter(c => c.type === "expense" || c.type === "both")
     .map(category => {
@@ -65,7 +65,7 @@ const Reports = () => {
         t => t.type === "expense" && t.categoryId === category.id
       );
       
-      const total = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const total = categoryTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
       
       return {
         name: category.name,
@@ -229,7 +229,7 @@ const Reports = () => {
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Expenses</h3>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Expenses (incl. VAT)</h3>
                   <div className="space-y-2">
                     {expensesByCategory.map((category, index) => (
                       <div key={index} className="flex justify-between items-center px-4 py-2 bg-gray-50 rounded">
@@ -245,7 +245,7 @@ const Reports = () => {
                     ))}
                     
                     <div className="flex justify-between items-center px-4 py-2 bg-red-50 rounded font-medium">
-                      <span>Total Expenses</span>
+                      <span>Total Expenses (incl. VAT)</span>
                       <span className="text-red-600">{formatCurrency(totalExpenses)}</span>
                     </div>
                   </div>
@@ -313,10 +313,10 @@ const Reports = () => {
               </div>
             </TabsContent>
             
-            {/* Expense Breakdown Tab */}
+            {/* Expense Breakdown Tab - now shows total amounts including VAT */}
             <TabsContent value="expense-breakdown">
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-700">Expense Categories</h3>
+                <h3 className="text-lg font-semibold text-gray-700">Expense Categories (Total Amount Paid incl. VAT)</h3>
                 
                 {expensesByCategory.length > 0 ? (
                   <div className="space-y-3">
@@ -342,7 +342,7 @@ const Reports = () => {
                     
                     <div className="border-t border-gray-200 pt-4">
                       <div className="flex justify-between items-center px-4 py-3 bg-gray-100 rounded font-bold">
-                        <span>Total Expenses</span>
+                        <span>Total Expenses (incl. VAT)</span>
                         <span className="text-red-600">{formatCurrency(totalExpenses)}</span>
                       </div>
                     </div>
