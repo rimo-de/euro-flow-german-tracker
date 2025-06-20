@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChartBar, FolderOpen, Receipt, Settings, FileSpreadsheet, User } from "lucide-react";
+import { ChartBar, FolderOpen, Receipt, Settings, FileSpreadsheet, User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +16,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const navigationItems = [
   {
@@ -46,11 +48,20 @@ const navigationItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { signOut, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="p-4">
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/dashboard" className="flex items-center space-x-2">
           <div className="flex items-center">
             <span className="text-xl font-semibold text-gray-800">Finance</span>
             <span className="ml-2 finance-gradient-text font-bold">Tracker</span>
@@ -85,13 +96,21 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-4">
         <SidebarSeparator className="mb-4" />
-        <div className="flex items-center space-x-3 text-sm text-gray-600">
+        <div className="flex items-center space-x-3 text-sm text-gray-600 mb-3">
           <User className="h-4 w-4" />
-          <span>Demo User</span>
+          <span>{user?.email || "Demo User"}</span>
         </div>
-        <div className="text-xs text-gray-500 mt-1">
+        <div className="text-xs text-gray-500 mb-4">
           Euro-Flow Tracker
         </div>
+        <Button 
+          variant="outline" 
+          onClick={handleLogout}
+          className="w-full flex items-center space-x-2"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>Logout</span>
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
