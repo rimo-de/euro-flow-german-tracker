@@ -1,6 +1,6 @@
 
 import React from "react";
-import Navbar from "./Navbar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -11,15 +11,18 @@ interface PageLayoutProps {
 const PageLayout: React.FC<PageLayoutProps> = ({ children, title, subtitle }) => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <main className="flex-grow pt-16">
-        <div className="max-w-screen-xl mx-auto px-4 py-6">
-          <div className="mb-6">
+      <header className="bg-white border-b border-gray-200 p-4">
+        <div className="flex items-center space-x-4">
+          <SidebarTrigger />
+          <div>
             <h1 className="text-2xl font-bold finance-gradient-text">{title}</h1>
             {subtitle && <p className="text-gray-600 mt-1">{subtitle}</p>}
           </div>
-          
+        </div>
+      </header>
+      
+      <main className="flex-grow">
+        <div className="max-w-screen-xl mx-auto px-4 py-6">
           {children}
         </div>
       </main>
