@@ -57,21 +57,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log("AuthContext: Attempting to sign in with email:", email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) {
+        console.error("AuthContext: Sign in error:", error);
         throw error;
       }
       
+      console.log("AuthContext: Sign in successful", data.user?.email);
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
     } catch (error: any) {
-      console.error("Error signing in:", error.message);
+      console.error("AuthContext: Error signing in:", error.message);
       toast({
         title: "Sign in failed",
         description: error.message,
@@ -86,21 +90,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signUp({
+      console.log("AuthContext: Attempting to sign up with email:", email);
+      
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
       });
       
       if (error) {
+        console.error("AuthContext: Sign up error:", error);
         throw error;
       }
       
+      console.log("AuthContext: Sign up successful", data.user?.email);
       toast({
         title: "Account created",
-        description: "You have successfully created an account.",
+        description: "You have successfully created an account. Please check your email to verify your account.",
       });
     } catch (error: any) {
-      console.error("Error signing up:", error.message);
+      console.error("AuthContext: Error signing up:", error.message);
       toast({
         title: "Sign up failed",
         description: error.message,
@@ -115,13 +128,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       setLoading(true);
+      console.log("AuthContext: Signing out");
       await supabase.auth.signOut();
       toast({
         title: "Signed out",
         description: "You have been signed out successfully.",
       });
     } catch (error: any) {
-      console.error("Error signing out:", error.message);
+      console.error("AuthContext: Error signing out:", error.message);
       toast({
         title: "Sign out failed",
         description: error.message,

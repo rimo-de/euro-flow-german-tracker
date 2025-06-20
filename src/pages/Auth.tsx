@@ -1,51 +1,49 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, signUp, loading } = useAuth();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        if (error) throw error;
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
-        });
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
-        navigate("/");
-      }
-    } catch (error: any) {
+    
+    if (!email || !password) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: "Please fill in all fields",
       });
-    } finally {
-      setLoading(false);
+      return;
+    }
+
+    try {
+      if (isSignUp) {
+        await signUp(email, password);
+        toast({
+          title: "Success!",
+          description: "Account created successfully. Please check your email to verify your account.",
+        });
+      } else {
+        await signIn(email, password);
+        // Navigation will be handled by the AuthContext/App component
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: error?.message || "An error occurred during authentication",
+      });
     }
   };
 
@@ -79,6 +77,7 @@ const Auth = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="auth-input pl-10"
                 required
+                disabled={loading}
               />
             </div>
             <div className="relative">
@@ -90,6 +89,7 @@ const Auth = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="auth-input pl-10"
                 required
+                disabled={loading}
               />
             </div>
           </div>
@@ -107,6 +107,7 @@ const Auth = () => {
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
               className="auth-link hover-scale"
+              disabled={loading}
             >
               {isSignUp
                 ? "Already have an account? Sign in"
@@ -116,7 +117,7 @@ const Auth = () => {
         </form>
       </div>
       
-      {/* Demo Accounts Section - Moved below main form */}
+      {/* Demo Accounts Section */}
       <div className="auth-card animate-fade-in mt-4">
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
@@ -140,6 +141,7 @@ const Auth = () => {
               size="sm"
               onClick={() => handleDemoAccount("admin@digital4pulse.edu", "password123")}
               className="hover-scale"
+              disabled={loading}
             >
               Use
             </Button>
@@ -156,6 +158,7 @@ const Auth = () => {
               size="sm"
               onClick={() => handleDemoAccount("user@digital4pulse.edu", "password123")}
               className="hover-scale"
+              disabled={loading}
             >
               Use
             </Button>
