@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -62,7 +63,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
     if (user) {
       const categoryToDelete = categories.find(c => c.id === id);
       const name = categoryName || categoryToDelete?.name || "Unknown Category";
-      await categoryActions.deleteCategory(id, name, user.id, setCategories, toast);
+      await categoryActions.deleteCategory(id, name, setCategories, toast);
     }
   };
 
@@ -79,11 +80,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const updateTransaction = async (id: string, transaction: Partial<Transaction>) => {
-    await transactionActions.updateTransaction(id, transaction, setTransactions, toast);
+    if (user) {
+      await transactionActions.updateTransaction(id, transaction, user.id, setTransactions, toast);
+    }
   };
 
   const deleteTransaction = async (id: string) => {
-    await transactionActions.deleteTransaction(id, setTransactions, toast);
+    if (user) {
+      await transactionActions.deleteTransaction(id, setTransactions, toast);
+    }
   };
 
   const value: FinanceContextType = {
