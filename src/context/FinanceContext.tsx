@@ -1,4 +1,3 @@
-
 import React, {
   createContext,
   useState,
@@ -54,13 +53,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const updateCategory = async (id: string, category: Partial<CategoryType>) => {
-    await categoryActions.updateCategory(id, category, setCategories, toast);
+    if (user) {
+      await categoryActions.updateCategory(id, category, setCategories, toast);
+    }
   };
 
   const deleteCategory = async (id: string, categoryName?: string) => {
-    const categoryToDelete = categories.find(c => c.id === id);
-    const name = categoryName || categoryToDelete?.name || "Unknown Category";
-    await categoryActions.deleteCategory(id, name, setCategories, toast);
+    if (user) {
+      const categoryToDelete = categories.find(c => c.id === id);
+      const name = categoryName || categoryToDelete?.name || "Unknown Category";
+      await categoryActions.deleteCategory(id, name, user.id, setCategories, toast);
+    }
   };
 
   const loadTransactions = useCallback(async () => {
