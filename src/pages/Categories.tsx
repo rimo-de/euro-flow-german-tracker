@@ -66,7 +66,7 @@ const Categories = () => {
 
   const handleDeleteCategory = () => {
     if (currentCategory) {
-      deleteCategory(currentCategory.id);
+      deleteCategory(currentCategory.id, currentCategory.name);
       setIsDeleteDialogOpen(false);
       setCurrentCategory(null);
     }
@@ -133,7 +133,13 @@ const Categories = () => {
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
-              category from your database.
+              category "{currentCategory?.name}" from your database.
+              {currentCategory && (
+                <div className="mt-2 text-amber-600 font-medium">
+                  Note: If this category has transactions assigned to it, the deletion will fail. 
+                  You'll need to reassign or delete those transactions first.
+                </div>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

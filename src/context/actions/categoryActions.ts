@@ -5,6 +5,21 @@ import { mapSupabaseCategoryToCategory, mapCategoryToSupabase } from "@/utils/su
 
 type ToastFunction = (args: { title: string; description?: string; variant?: "default" | "destructive" }) => void;
 
+// Helper function to check transaction count for a category
+export const getTransactionCountForCategory = async (categoryId: string): Promise<number> => {
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("id", { count: "exact" })
+    .eq("category_id", categoryId);
+
+  if (error) {
+    console.error("Error counting transactions:", error);
+    return 0;
+  }
+
+  return data?.length || 0;
+};
+
 export const loadCategories = async (
   userId: string,
   setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
@@ -132,25 +147,51 @@ export const updateCategory = async (
 
 export const deleteCategory = async (
   id: string,
+  categoryName: string,
   setCategories: React.Dispatch<React.SetStateAction<CategoryType[]>>,
   toast: ToastFunction
 ) => {
   try {
+    // First, check if this category has any associated transactions
+    const transactionCount = await getTransactionCountForCategory(id);
+    
+    if (transactionCount > 0) {
+      // Show meaningful error message if transactions exist
+      toast({
+        title: "Cannot delete category",
+        description: `Cannot delete category '${categoryName}' because it has ${transactionCount} transaction${transactionCount > 1 ? 's' : ''} assigned to it. Please reassign or delete these transactions first.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Proceed with deletion if no transactions are associated
     const { error } = await supabase.from("categories").delete().eq("id", id);
 
-    if (error) throw error;
+    if (error) {
+      // Handle foreign key constraint violations specifically
+      if (error.message.includes("violates foreign key constraint")) {
+        toast({
+          title: "Cannot delete category",
+          description: `Cannot delete category '${categoryName}' because it is still being used by transactions. Please reassign or delete these transactions first.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      throw error;
+    }
 
     setCategories((prev) => prev.filter((c) => c.id !== id));
     
     toast({
       title: "Category deleted",
-      description: "Your category has been successfully deleted.",
+      description: `Category '${categoryName}' has been successfully deleted.`,
     });
   } catch (error: any) {
     console.error("Error deleting category:", error.message);
     toast({
       title: "Error deleting category",
-      description: error.message,
+      description: "An unexpected error occurred while deleting the category. Please try again.",
       variant: "destructive",
     });
     throw error;
